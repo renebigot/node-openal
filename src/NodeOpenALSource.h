@@ -4,13 +4,13 @@
 #include <v8.h>
 
 #ifdef __APPLE__
-	#include <OpenAL/al.h>
-	#include <OpenAL/alc.h>
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
 #endif
 
 #if defined (_WIN32) || defined (_WIN64)
-	#include <AL/al.h>
-	#include <AL/alc.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 #endif
 
 #include "NodeWavData.h"
@@ -18,23 +18,24 @@
 using namespace v8;
 using namespace std;
 
-class NodeOpenALSource : public node::ObjectWrap {
-	public:
-		static void Init(v8::Handle<v8::Object> exports);
+class NodeOpenALSource : public Nan::ObjectWrap {
+  public:
+  static void Init(Handle<v8::Object> exports);
 
-	private:
-		NodeOpenALSource( NodeWavData* data );
-		~NodeOpenALSource();
+  private:
+  NodeOpenALSource( NodeWavData* data );
+  ~NodeOpenALSource();
 
-		static v8::Handle<v8::Value> New(const v8::Arguments& args);
-		static v8::Handle<v8::Value> Play(const v8::Arguments& args);
-		static v8::Handle<v8::Value> SetPosition(const v8::Arguments& args);
-		static v8::Handle<v8::Value> SetLoop(const v8::Arguments& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void Play(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void SetPosition(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void SetLoop(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
-		void play();
-		void setPosition(double x, double y, double z);
-		void setLoop(bool loop);
-		unsigned int bufferid;
-		unsigned int format;
-		unsigned int sourceid;
+  void play();
+  void setPosition(double x, double y, double z);
+  void setLoop(bool loop);
+  unsigned int bufferid;
+  unsigned int format;
+  unsigned int sourceid;
 };

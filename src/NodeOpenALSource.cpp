@@ -5,118 +5,134 @@ using namespace v8;
 
 // --------------------------------------------------------
 NodeOpenALSource::NodeOpenALSource(NodeWavData* data) {
-    
-    if(data->channel==1) {
-		if(data->bps==8) {
-			format=AL_FORMAT_MONO8;
-		} else {
-        	format=AL_FORMAT_MONO16;               
-		}
-    } else {
-		if(data->bps==8) {
-			format=AL_FORMAT_STEREO8;
-		} else {
-			format=AL_FORMAT_STEREO16;             
-		}      
-    }
 
-    alGenBuffers(1, &bufferid);
-    alBufferData(bufferid, format, data->data, data->size, data->samplerate);
-    alGenSources(1, &sourceid);
-	alSourcei(sourceid, AL_BUFFER, bufferid);
-	alSource3f(sourceid, AL_POSITION, 0, 0, 0);
+  if(data->channel==1) {
+    if(data->bps==8) {
+      format=AL_FORMAT_MONO8;
+    } else {
+      format=AL_FORMAT_MONO16;
+    }
+  } else {
+    if(data->bps==8) {
+      format=AL_FORMAT_STEREO8;
+    } else {
+      format=AL_FORMAT_STEREO16;
+    }
+  }
+
+  alGenBuffers(1, &bufferid);
+  alBufferData(bufferid, format, data->data, data->size, data->samplerate);
+  alGenSources(1, &sourceid);
+  alSourcei(sourceid, AL_BUFFER, bufferid);
+  alSource3f(sourceid, AL_POSITION, 0, 0, 0);
 };
 
 // --------------------------------------------------------
 NodeOpenALSource::~NodeOpenALSource() {
-	alDeleteSources(1, &sourceid);
-	alDeleteBuffers(1, &bufferid);
+  alDeleteSources(1, &sourceid);
+  alDeleteBuffers(1, &bufferid);
 };
+
+Nan::Persistent<v8::Function> NodeOpenALSource::constructor;
 
 // --------------------------------------------------------
 void NodeOpenALSource::Init(Handle<Object> exports) {
+  Isolate* isolate = exports->GetIsolate();
+
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("Source"));
+  v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
+  tpl->SetClassName(Nan::New("Source").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("Play"), FunctionTemplate::New(Play)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("SetPosition"), FunctionTemplate::New(SetPosition)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("SetLoop"), FunctionTemplate::New(SetLoop)->GetFunction());
+  // Prototype
+  tpl->PrototypeTemplate()->Set(Nan::New<v8::String>("Play").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(Play));
+  tpl->PrototypeTemplate()->Set(Nan::New<v8::String>("SetPosition").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetPosition));
+  tpl->PrototypeTemplate()->Set(Nan::New<v8::String>("SetLoop").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetLoop));
 
-  Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
-  exports->Set(String::NewSymbol("Source"), constructor);
+  constructor.Reset(tpl->GetFunction());
+  exports->Set(String::NewFromUtf8(isolate, "Source"), tpl->GetFunction());
 }
 
-
 // --------------------------------------------------------
-Handle<Value> NodeOpenALSource::New(const Arguments& args) {
-	HandleScope scope;
+void NodeOpenALSource::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  Isolate* isolate = info.GetIsolate();
+  v8::EscapableHandleScope scope(isolate);
 
-	if (args.Length() < 1) {
-		ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
-		return scope.Close( Undefined() );
-	}
+  if (info.Length() < 1) {
+    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
+    scope.Escape(v8::Undefined(isolate));
+    return;
+  }
 
-	if ( !args[0]->IsObject() ) {
-		ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-		return scope.Close( Undefined() );
-	}
+  if ( !info[0]->IsObject() ) {
+    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong arguments")));
+    scope.Escape(v8::Undefined(isolate));
+    return;
+  }
 
-	NodeWavData* data = node::ObjectWrap::Unwrap<NodeWavData>(args[0]->ToObject());
+  NodeWavData* data = Nan::ObjectWrap::Unwrap<NodeWavData>(info[0]->ToObject());
 
-	NodeOpenALSource* source = new NodeOpenALSource(data);
-	source->Wrap(args.This());
-	return args.This();
+  NodeOpenALSource* source = new NodeOpenALSource(data);
+  source->Wrap(info.This());
+
+  info.GetReturnValue().Set(info.This());
 }
 
 
 // --------------------------------------------------------
 void NodeOpenALSource::play() {
-	alSourcePlay(sourceid);
+  alSourcePlay(sourceid);
 }
 
 // --------------------------------------------------------
 void NodeOpenALSource::setPosition(double x, double y, double z) {
-	alSource3f(sourceid, AL_POSITION, x, y, z);
+  alSource3f(sourceid, AL_POSITION, x, y, z);
 }
 
 // --------------------------------------------------------
 void NodeOpenALSource::setLoop(bool loop) {
-	if(loop)
-		alSourcei(sourceid, AL_LOOPING, AL_TRUE);
-	else
-		alSourcei(sourceid, AL_LOOPING, AL_FALSE);
+  if(loop)
+    alSourcei(sourceid, AL_LOOPING, AL_TRUE);
+  else
+    alSourcei(sourceid, AL_LOOPING, AL_FALSE);
 }
 
 // --------------------------------------------------------
-Handle<Value> NodeOpenALSource::Play(const Arguments& args) {
-	HandleScope scope;
-	NodeOpenALSource* obj = ObjectWrap::Unwrap<NodeOpenALSource>(args.This());
-	obj->play();
-	return scope.Close(v8::Undefined());
+void NodeOpenALSource::Play(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  Isolate* isolate = info.GetIsolate();
+  v8::EscapableHandleScope scope(isolate);
+
+  NodeOpenALSource* obj = ObjectWrap::Unwrap<NodeOpenALSource>(info.This());
+  obj->play();
+
+  scope.Escape(v8::Undefined(isolate));
 }
 
 // --------------------------------------------------------
-Handle<Value> NodeOpenALSource::SetPosition(const Arguments& args) {
-	HandleScope scope;
-	NodeOpenALSource* obj = ObjectWrap::Unwrap<NodeOpenALSource>(args.This());
+void NodeOpenALSource::SetPosition(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  Isolate* isolate = info.GetIsolate();
+  v8::EscapableHandleScope scope(isolate);
 
-	double x = args[0]->NumberValue();
-	double y = args[1]->NumberValue();
-	double z = args[2]->NumberValue();
-	obj->setPosition(x, y, z);
+  NodeOpenALSource* obj = ObjectWrap::Unwrap<NodeOpenALSource>(info.This());
 
-	return scope.Close(v8::Undefined());
+  double x = info[0]->NumberValue();
+  double y = info[1]->NumberValue();
+  double z = info[2]->NumberValue();
+  obj->setPosition(x, y, z);
+
+  scope.Escape(v8::Undefined(isolate));
 }
 
 // --------------------------------------------------------
-Handle<Value> NodeOpenALSource::SetLoop(const Arguments& args) {
-	HandleScope scope;
-	NodeOpenALSource* obj = ObjectWrap::Unwrap<NodeOpenALSource>(args.This());
-	bool loop = args[0]->BooleanValue();
-	obj->setLoop( loop );
-	return scope.Close(v8::Undefined());
+void NodeOpenALSource::SetLoop(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  Isolate* isolate = info.GetIsolate();
+  v8::EscapableHandleScope scope(isolate);
+
+  NodeOpenALSource* obj = ObjectWrap::Unwrap<NodeOpenALSource>(info.This());
+  bool loop = info[0]->BooleanValue();
+  obj->setLoop( loop );
+
+  scope.Escape(v8::Undefined(isolate));
 }
 
 

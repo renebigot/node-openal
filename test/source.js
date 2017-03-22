@@ -1,23 +1,26 @@
 
 var openal = require('../openal')
-
 var device = new openal.Device();
 var context = new openal.Context( device );
 
 openal.MakeContextCurrent( context );
 openal.SetListenerOrientation(1, 0, 0);
 
-var data = new openal.WavData(__dirname+"/../sounds/synth.wav");
-var synth = new openal.Source( data );
+var synthData = new openal.WavData(__dirname+"/../sounds/synth.wav");
+var synth = new openal.Source(synthData);
 
-var x=0, y=0, z=0;
-var start = new Date();
-setInterval(function(){
-	x+=0.05;
+var x=-1;
 
-	openal.SetListenerPosition(x, y, z);
-	synth.Play();
-	var seconds = (new Date() - start)/1000;
-	console.log(seconds+' secs');
+setInterval(() => {
+  if (x > 0) {
+    x = -1;
+    console.log('>>>');
+  } else {
+    x = 1;
+    console.log('<<<');
+  }
+
+  synth.SetPosition(0, 0, x);
+  synth.Play();
 }, 1000);
 

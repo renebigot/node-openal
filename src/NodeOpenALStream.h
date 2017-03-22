@@ -2,6 +2,7 @@
 #define NUM_BUFFERS 10
 
 
+#include <nan.h>
 #include <iostream>
 #include <stdio.h>
 #include <sys/types.h>
@@ -10,13 +11,13 @@
 #include <stdlib.h>
 
 #ifdef __APPLE__
-	#include <OpenAL/al.h>
-	#include <OpenAL/alc.h>
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
 #endif
 
 #if defined (_WIN32) || defined (_WIN64)
-	#include <AL/al.h>
-	#include <AL/alc.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 #endif
 
 using namespace v8;
@@ -25,31 +26,32 @@ using namespace std;
 
 
 // http://kcat.strangesoft.net/openal-tutorial.html
-class NodeOpenALStream : public node::ObjectWrap {
-    public:
-        static void Init(v8::Handle<v8::Object> exports);
+class NodeOpenALStream : public Nan::ObjectWrap {
+  public:
+  static void Init(Handle<v8::Object> exports);
 
-        void buffer(size_t size, char* bufferdata);
-        void setPosition(double x, double y, double z);
-        void play();
-        bool ready();
-        void setGain(float g);
+  void buffer(size_t size, char* bufferdata);
+  void setPosition(double x, double y, double z);
+  void play();
+  bool ready();
+  void setGain(float g);
 
-		/* These are what we'll use for OpenAL playback */
-		ALuint sourceid, buffers[NUM_BUFFERS];
-		ALuint frequency;
-		ALenum format;
+  /* These are what we'll use for OpenAL playback */
+  ALuint sourceid, buffers[NUM_BUFFERS];
+  ALuint frequency;
+  ALenum format;
 
-		int n;
-    
-    private:
-        static v8::Handle<v8::Value> New(const v8::Arguments& args);
-        static v8::Handle<v8::Value> Buffer(const v8::Arguments& args);
-        static v8::Handle<v8::Value> Ready(const v8::Arguments& args);
-        static v8::Handle<v8::Value> SetPosition(const v8::Arguments& args);
-        static v8::Handle<v8::Value> GetPosition(const Arguments& args);
-        static v8::Handle<v8::Value> SetGain(const v8::Arguments& args);
+  int n;
 
-		NodeOpenALStream(int channels, int bps, int _frequency);
-    	~NodeOpenALStream();
+  private:
+  static Nan::Persistent<v8::Function> constructor;
+  static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void Buffer(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void Ready(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void SetPosition(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void GetPosition(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void SetGain(const Nan::FunctionCallbackInfo<v8::Value>& info);
+
+  NodeOpenALStream(int channels, int bps, int _frequency);
+  ~NodeOpenALStream();
 };

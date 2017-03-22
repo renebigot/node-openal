@@ -7,51 +7,57 @@ using namespace v8;
 
 
 NodeOpenALContext::NodeOpenALContext(NodeOpenALDevice* dev) {
-	context = alcCreateContext(dev->device, NULL);
-    if(context==NULL) {
-		std::cout << "cannot open context" << std::endl;
-		return;
-    }
+  context = alcCreateContext(dev->device, NULL);
+  if(context==NULL) {
+    cout << "cannot open context" << endl;
+    return;
+  }
 };
 
 
 NodeOpenALContext::~NodeOpenALContext() {
-	if(context) {
-		cout << "destroying context" << endl;
-		alcDestroyContext(context);
-	}
+  if(context) {
+    cout << "destroying context" << endl;
+    alcDestroyContext(context);
+  }
 };
 
+Nan::Persistent<v8::Function> NodeOpenALContext::constructor;
+
 void NodeOpenALContext::Init(Handle<Object> exports) {
-	// Prepare constructor template
-	Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-	tpl->SetClassName(String::NewSymbol("Context"));
-	tpl->InstanceTemplate()->SetInternalFieldCount(1);
+  Isolate* isolate = exports->GetIsolate();
 
-	Persistent<Function> constructor = Persistent<Function>::New(tpl->GetFunction());
-	exports->Set(String::NewSymbol("Context"), constructor);
+  // Prepare constructor template
+  v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
+  tpl->SetClassName(Nan::New("Context").ToLocalChecked());
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+  constructor.Reset(tpl->GetFunction());
+  exports->Set(String::NewFromUtf8(isolate, "Context"), tpl->GetFunction());
 }
 
-Handle<Value> NodeOpenALContext::New(const Arguments& args) {
-	HandleScope scope;
+void NodeOpenALContext::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  Isolate* isolate = info.GetIsolate();
+  v8::EscapableHandleScope scope(isolate);
 
-	if (args.Length() < 1) {
-		ThrowException(Exception::TypeError(String::New("Wrong number of arguments")));
-		return scope.Close( Undefined() );
-	}
+  if (info.Length() < 1) {
+    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
+    scope.Escape(v8::Undefined(isolate));
+    return;
+  }
 
-	if ( !args[0]->IsObject() ) {
-		ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-		return scope.Close( Undefined() );
-	}
+  if ( !info[0]->IsObject() ) {
+    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong arguments")));
+    scope.Escape(v8::Undefined(isolate));
+    return;
+  }
 
-	NodeOpenALDevice* dev = node::ObjectWrap::Unwrap<NodeOpenALDevice>(args[0]->ToObject());
-	
-	NodeOpenALContext* ctx = new NodeOpenALContext( dev );
-	//contexts.push_back( ctx );
+  NodeOpenALDevice* dev = Nan::ObjectWrap::Unwrap<NodeOpenALDevice>(info[0]->ToObject());
 
-	ctx->Wrap(args.This());
+  NodeOpenALContext* ctx = new NodeOpenALContext( dev );
+  //contexts.push_back( ctx );
 
-	return args.This();
+  ctx->Wrap(info.This());
+
+  info.GetReturnValue().Set(info.This());
 }
-
