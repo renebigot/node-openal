@@ -56,17 +56,16 @@ void NodeOpenALSource::Init(Handle<Object> exports) {
 // --------------------------------------------------------
 void NodeOpenALSource::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   if (info.Length() < 1) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
   if ( !info[0]->IsObject() ) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
@@ -100,18 +99,16 @@ void NodeOpenALSource::setLoop(bool loop) {
 // --------------------------------------------------------
 void NodeOpenALSource::Play(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   NodeOpenALSource* obj = ObjectWrap::Unwrap<NodeOpenALSource>(info.This());
   obj->play();
 
-  scope.Escape(v8::Undefined(isolate));
+  info.GetReturnValue().Set(v8::Undefined(isolate));
 }
 
 // --------------------------------------------------------
 void NodeOpenALSource::SetPosition(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   NodeOpenALSource* obj = ObjectWrap::Unwrap<NodeOpenALSource>(info.This());
 
@@ -120,19 +117,18 @@ void NodeOpenALSource::SetPosition(const Nan::FunctionCallbackInfo<v8::Value>& i
   double z = info[2]->NumberValue();
   obj->setPosition(x, y, z);
 
-  scope.Escape(v8::Undefined(isolate));
+  info.GetReturnValue().Set(v8::Undefined(isolate));
 }
 
 // --------------------------------------------------------
 void NodeOpenALSource::SetLoop(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   NodeOpenALSource* obj = ObjectWrap::Unwrap<NodeOpenALSource>(info.This());
   bool loop = info[0]->BooleanValue();
   obj->setLoop( loop );
 
-  scope.Escape(v8::Undefined(isolate));
+  info.GetReturnValue().Set(v8::Undefined(isolate));
 }
 
 

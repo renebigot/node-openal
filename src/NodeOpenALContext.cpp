@@ -38,17 +38,16 @@ void NodeOpenALContext::Init(Handle<Object> exports) {
 
 void NodeOpenALContext::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   if (info.Length() < 1) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
   if ( !info[0]->IsObject() ) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
