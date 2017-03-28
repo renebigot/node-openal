@@ -18,8 +18,15 @@
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#endif
+
+#if defined (_WIN32) || defined (_WIN64)
 #include <AL/al.h>
 #include <AL/alc.h>
+#endif
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -150,7 +157,7 @@ int main(int argc, char **argv)
     /* fdopen simply creates a FILE* from the given file descriptor. This is
          * generally easier to work with, but there's no reason you couldn't use
          * the lower-level io routines on the descriptor if you wanted */
-    f = fdopen(files[0], "rb");
+    f = fopen(argv[1], "rb");
 
     /* Allocate the buffer, and read the RIFF-WAVE header. We don't actually
          * need to read it, so just ignore what it writes to the buffer. Because
