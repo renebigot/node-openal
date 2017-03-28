@@ -2,6 +2,27 @@
 #include <node_buffer.h>
 #include "NodeOpenALStream.h"
 
+string ErrorCheck(ALenum error) {
+  if(error == AL_INVALID_NAME) {
+    return "Invalid name";
+
+  } else if(error == AL_INVALID_ENUM) {
+    return " Invalid enum ";
+
+  } else if(error == AL_INVALID_VALUE) {
+    return " Invalid value ";
+
+  } else if(error == AL_INVALID_OPERATION) {
+    return " Invalid operation ";
+
+  } else if(error == AL_OUT_OF_MEMORY) {
+    return " Out of memory like! ";
+
+  }
+
+  return " Don't know ";
+}
+
 using namespace v8;
 using namespace std;
 
@@ -31,17 +52,16 @@ void NodeOpenALStream::Init(Handle<Object> exports) {
 // --------------------------------------------------------
 void NodeOpenALStream::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   if (info.Length() < 3) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
   if ( !info[0]->IsNumber() || !info[1]->IsNumber() || !info[2]->IsNumber()) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
@@ -59,13 +79,12 @@ void NodeOpenALStream::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 // --------------------------------------------------------
 void NodeOpenALStream::Buffer(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   NodeOpenALStream* obj = ObjectWrap::Unwrap<NodeOpenALStream>(info.This());
 
   if (info.Length() < 1) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
@@ -75,36 +94,34 @@ void NodeOpenALStream::Buffer(const Nan::FunctionCallbackInfo<v8::Value>& info) 
 
   obj->buffer(size, bufferdata);
 
-  scope.Escape(v8::Undefined(isolate));
+  info.GetReturnValue().Set(v8::Undefined(isolate));
 }
 
 
 // --------------------------------------------------------
 void NodeOpenALStream::Ready(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   NodeOpenALStream* obj = ObjectWrap::Unwrap<NodeOpenALStream>(info.This());
 
-  scope.Escape(Boolean::New(isolate, obj->ready() ));
+  info.GetReturnValue().Set(Boolean::New(isolate, obj->ready() ));
 }
 
 // --------------------------------------------------------
 void NodeOpenALStream::SetPosition(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   NodeOpenALStream* obj = ObjectWrap::Unwrap<NodeOpenALStream>(info.This());
 
   if (info.Length() < 3) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
   if ( !info[0]->IsNumber() || !info[1]->IsNumber() || !info[2]->IsNumber()) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
@@ -113,13 +130,12 @@ void NodeOpenALStream::SetPosition(const Nan::FunctionCallbackInfo<v8::Value>& i
   double z = info[2]->NumberValue();
   obj->setPosition(x, y, z);
 
-  scope.Escape(v8::Undefined(isolate));
+  info.GetReturnValue().Set(v8::Undefined(isolate));
 }
 
 // --------------------------------------------------------
 void NodeOpenALStream::GetPosition(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   NodeOpenALStream* obj = ObjectWrap::Unwrap<NodeOpenALStream>(info.This());
 
@@ -133,26 +149,25 @@ void NodeOpenALStream::GetPosition(const Nan::FunctionCallbackInfo<v8::Value>& i
   position->Set(String::NewFromUtf8(isolate, "y", String::kInternalizedString),  Number::New(isolate, y));
   position->Set(String::NewFromUtf8(isolate, "z", String::kInternalizedString),  Number::New(isolate, z));
 
-  scope.Escape(position);
+  info.GetReturnValue().Set(position);
 }
 
 
 // --------------------------------------------------------
 void NodeOpenALStream::SetGain(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   NodeOpenALStream* obj = ObjectWrap::Unwrap<NodeOpenALStream>(info.This());
 
   if (info.Length() < 1) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong number of arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
   if ( !info[0]->IsNumber() ) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Wrong arguments")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
@@ -160,38 +175,8 @@ void NodeOpenALStream::SetGain(const Nan::FunctionCallbackInfo<v8::Value>& info)
   double x = info[0]->NumberValue();
   obj->setGain(x);
 
-  scope.Escape(v8::Undefined(isolate));
+  info.GetReturnValue().Set(v8::Undefined(isolate));
 }
-
-
-
-
-string ErrorCheck(ALenum error)
-{
-  if(error == AL_INVALID_NAME)
-  {
-    return "Invalid name";
-  }
-  else if(error == AL_INVALID_ENUM)
-  {
-    return " Invalid enum ";
-  }
-  else if(error == AL_INVALID_VALUE)
-  {
-    return " Invalid value ";
-  }
-  else if(error == AL_INVALID_OPERATION)
-  {
-    return " Invalid operation ";
-  }
-  else if(error == AL_OUT_OF_MEMORY)
-  {
-    return " Out of memory like! ";
-  }
-  return " Don't know ";
-}
-
-
 
 // -----------------------------------------------------
 NodeOpenALStream::NodeOpenALStream(int channels, int bps, int _frequency) {
@@ -251,8 +236,7 @@ NodeOpenALStream::~NodeOpenALStream() {
 
 // -----------------------------------------------------
 void NodeOpenALStream::buffer(size_t size, char* data) {
-
-  //cout << "received " << size << " bytes" << endl;
+//  cout << "received " << size << " bytes" << endl;
   ALenum error;
 
   // Prefill all of the buffers
@@ -300,14 +284,19 @@ void NodeOpenALStream::buffer(size_t size, char* data) {
 
 // -----------------------------------------------------
 bool NodeOpenALStream::ready() {
-  if(n < NUM_BUFFERS-1) return true;
+  if(n < NUM_BUFFERS-1) {
+    return true;
+  }
+
   ALint val;
   alGetSourcei(sourceid, AL_BUFFERS_PROCESSED, &val);
-  return (val > 0);
+
+  return val > 0;
 }
 
 // -----------------------------------------------------
 void NodeOpenALStream::setGain(float g) {
+  cout << "SETTING: gain=" << g << endl;
   alSourcef(sourceid, AL_GAIN, g);
 }
 

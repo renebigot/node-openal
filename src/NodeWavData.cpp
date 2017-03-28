@@ -74,11 +74,10 @@ void NodeWavData::Init(Handle<Object> exports) {
 // ---------------------------------------------------
 void NodeWavData::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   Isolate* isolate = info.GetIsolate();
-  v8::EscapableHandleScope scope(isolate);
 
   if (info.Length() == 0 || !info[0]->IsString()) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "First argument must be a string")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
@@ -87,7 +86,7 @@ void NodeWavData::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   ifstream my_file(path);
   if(!my_file.good()) {
     isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "File not found")));
-    scope.Escape(v8::Undefined(isolate));
+    info.GetReturnValue().Set(v8::Undefined(isolate));
     return;
   }
 
