@@ -1,6 +1,6 @@
 {
-  "name": "node-openal",
-  "version": "v1.0.1",
+  "name": "openal",
+  "version": "v1.0.0",
   "scripts": {
     "test": "node test/stream-test.js"
   },
