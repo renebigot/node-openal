@@ -1,5 +1,5 @@
 #pragma once
-#define NUM_BUFFERS 10
+#define NUM_BUFFERS 1
 
 
 #include <nan.h>
