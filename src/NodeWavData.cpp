@@ -81,7 +81,9 @@ void NodeWavData::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  char* path = *v8::String::Utf8Value(info[0]);
+//  char* path = *v8::String::Utf8Value(info[0]);
+  v8::String::Utf8Value str(info[0]);
+  const char* path = *str;
 
   ifstream my_file(path);
   if(!my_file.good()) {

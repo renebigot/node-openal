@@ -4,6 +4,11 @@
 #include <node.h>
 #include <nan.h>
 
+#ifdef __linux__
+#include <AL/al.h>
+#include <AL/alc.h>
+#endif
+
 #ifdef __APPLE__
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>

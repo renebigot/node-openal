@@ -24,7 +24,7 @@
            ],
            'link_settings': {
              'libraries': [
-               '-lal'
+               '-lopenal'
              ]
            }
          }

@@ -10,6 +10,11 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+#ifdef __linux__
+#include <AL/al.h>
+#include <AL/alc.h>
+#endif
+
 #ifdef __APPLE__
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
